@@ -35,21 +35,30 @@
       #numbers button {
         margin-right: 10px;
         padding: 10px 20px; /* Increase padding for larger button size */
-        font-size: 18px; /* Increase font size for better readability */
+        font-size: 32px; /* Increase font size for better readability */
         cursor: pointer; /* Change cursor to pointer on hover for better UX */
+      }
+
+      .correct {
+        background-color: lightgreen;
+      }
+
+      .incorrect {
+        background-color: lightcoral;
       }
     </style>
   </head>
   <body>
     <h1>Subitising Game</h1>
+    <div id="score">Score: 0</div>
+    <div id="highScore">High Score: 0</div>
+    <div id="result"></div>
+
     <div class="grid-container">
       <div class="grid-column" id="grid-column-1"></div>
       <div class="grid-column" id="grid-column-2"></div>
     </div>
     <div id="numbers"></div>
-    <div id="score">Score: 0</div>
-    <div id="highScore">High Score: 0</div>
-    <div id="result"></div>
 
     <script>
       const gridWidth = 2;
@@ -96,7 +105,7 @@
 
         // Ensure we don't pick the same number of filled boxes as the previous iteration
         do {
-          numFilledBoxes = Math.floor(Math.random() * (maxNumber - 1)) + 1;
+          numFilledBoxes = Math.floor(Math.random() * maxNumber) + 1;
         } while (numFilledBoxes === previousNumFilledBoxes);
 
         previousNumFilledBoxes = numFilledBoxes; // Store for next iteration
@@ -113,6 +122,14 @@
         }
       }
 
+      // Function to flash the background color
+      function flashColor(colorClass, duration) {
+        document.body.classList.add(colorClass);
+        setTimeout(() => {
+          document.body.classList.remove(colorClass);
+        }, duration);
+      }
+
       // Handle number button click
       function handleNumberClick(event) {
         const clickedNumber = parseInt(event.target.textContent);
@@ -124,13 +141,20 @@
           if (score > highScore) {
             highScore = score;
           }
+          flashColor("correct", 300); // Flash background green for correct answer
           updateScore();
           generateGrid();
         } else {
+          flashColor("incorrect", 900); // Flash background red for incorrect answer
           const resultDiv = document.getElementById("result");
-          resultDiv.textContent = `Game Over! Your score was ${score}`;
-          score = 0;
-          updateScore();
+          resultDiv.textContent = `Game Over! Your high score was ${highScore}`;
+          setTimeout(() => {
+            // Reset the score and reload the game after a short delay
+            score = 0;
+            updateScore();
+            generateGrid();
+            resultDiv.textContent = ""; // Clear the 'Game Over' message
+          }, 1500);
         }
       }
 
