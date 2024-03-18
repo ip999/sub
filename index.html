@@ -29,14 +29,21 @@
       }
 
       #numbers {
-        text-align: center;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center; /* Center buttons on the page */
+        gap: 10px; /* Space between buttons */
+        padding: 10px; /* Padding around the button area */
       }
 
       #numbers button {
-        margin-right: 10px;
-        padding: 10px 20px; /* Increase padding for larger button size */
-        font-size: 32px; /* Increase font size for better readability */
-        cursor: pointer; /* Change cursor to pointer on hover for better UX */
+        flex: 0 1 auto; /* Allow buttons to shrink and grow as needed */
+        margin: 5px; /* Space between buttons */
+        padding: 10px 20px; /* Padding inside buttons */
+        font-size: 18px; /* Button font size */
+        cursor: pointer; /* Change cursor to pointer on hover */
+        min-width: 60px; /* Minimum width for buttons */
+        box-sizing: border-box; /* Include padding and border in the width */
       }
 
       .correct {
@@ -52,6 +59,7 @@
     <div id="score">Score: 0</div>
     <div id="highScore">High Score: 0</div>
     <div id="result"></div>
+    wd
 
     <div class="grid-container">
       <div class="grid-column" id="grid-column-1"></div>
@@ -143,7 +151,9 @@
         } else {
           flashColor("incorrect", 500);
           const resultDiv = document.getElementById("result");
-          resultDiv.textContent = `Game Over! Your high score was ${Math.floor(highScore)}`;
+          resultDiv.textContent = `Game Over! Your high score was ${Math.floor(
+            highScore
+          )}`;
           score = 0;
           setTimeout(() => {
             updateScore();
