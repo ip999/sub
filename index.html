@@ -89,19 +89,12 @@
         numbersDiv.appendChild(button);
       }
 
-      // Update the score display
-      function updateScore() {
-        document.getElementById("score").textContent = `Score: ${score}`;
-        document.getElementById(
-          "highScore"
-        ).textContent = `High Score: ${highScore}`;
-      }
-
       let previousNumFilledBoxes = null;
 
       // Generate a new grid with random filled boxes
       function generateGrid() {
         let numFilledBoxes;
+        startTime = new Date().getTime(); // Reset the start time for the new grid
 
         // Ensure we don't pick the same number of filled boxes as the previous iteration
         do {
@@ -137,26 +130,41 @@
         const numFilledBoxes = filledBoxes.length;
 
         if (clickedNumber === numFilledBoxes) {
-          score++;
+          // Calculate score based on quickness of the response
+          const timeTaken = new Date().getTime() - startTime; // time taken since the grid was generated
+          const timeScore = Math.max(0, (5000 - timeTaken) / 1000); // Score based on time, e.g., 5 seconds to answer for full score
+
+          score += 1 + timeScore; // 1 point for correct answer, plus time-based score
           if (score > highScore) {
             highScore = score;
           }
-          flashColor("correct", 300); // Flash background green for correct answer
+          flashColor("correct", 500);
           updateScore();
           generateGrid();
         } else {
-          flashColor("incorrect", 900); // Flash background red for incorrect answer
+          flashColor("incorrect", 500);
           const resultDiv = document.getElementById("result");
           resultDiv.textContent = `Game Over! Your high score was ${highScore}`;
+          score = 0;
           setTimeout(() => {
-            // Reset the score and reload the game after a short delay
-            score = 0;
             updateScore();
             generateGrid();
-            resultDiv.textContent = ""; // Clear the 'Game Over' message
+            resultDiv.textContent = "";
           }, 1500);
         }
       }
+
+      // Update the score display
+      function updateScore() {
+        document.getElementById("score").textContent = `Score: ${Math.floor(
+          score
+        )}`;
+        document.getElementById(
+          "highScore"
+        ).textContent = `High Score: ${Math.floor(highScore)}`;
+      }
+
+      let startTime; // define startTime globally
 
       // Start the game
       updateScore();
