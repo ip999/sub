@@ -144,7 +144,7 @@
         } else {
           flashColor("incorrect", 500);
           const resultDiv = document.getElementById("result");
-          resultDiv.textContent = `Game Over! Your high score was ${highScore}`;
+          resultDiv.textContent = `Game Over! Your high score was ${Math.floor(highScore)}`;
           score = 0;
           setTimeout(() => {
             updateScore();
