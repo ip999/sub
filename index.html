@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Subitising Game</title>
+    <style>
+      .grid-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+
+      .grid-column {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .box {
+        width: 50px;
+        height: 50px;
+        border: 1px solid black;
+        background-color: white;
+        margin: 2px;
+      }
+
+      .filled {
+        background-color: black;
+      }
+
+      #numbers {
+        text-align: center;
+      }
+
+      #numbers button {
+        margin-right: 10px;
+        padding: 10px 20px; /* Increase padding for larger button size */
+        font-size: 18px; /* Increase font size for better readability */
+        cursor: pointer; /* Change cursor to pointer on hover for better UX */
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Subitising Game</h1>
+    <div class="grid-container">
+      <div class="grid-column" id="grid-column-1"></div>
+      <div class="grid-column" id="grid-column-2"></div>
+    </div>
+    <div id="numbers"></div>
+    <div id="score">Score: 0</div>
+    <div id="highScore">High Score: 0</div>
+    <div id="result"></div>
+
+    <script>
+      const gridWidth = 2;
+      const gridHeight = 5;
+      const maxNumber = gridWidth * gridHeight;
+      let score = 0;
+      let highScore = 0;
+
+      // Create the grid
+      const gridColumn1 = document.getElementById("grid-column-1");
+      const gridColumn2 = document.getElementById("grid-column-2");
+      for (let row = 0; row < gridHeight; row++) {
+        const box1 = document.createElement("div");
+        box1.classList.add("box");
+        gridColumn1.appendChild(box1);
+
+        const box2 = document.createElement("div");
+        box2.classList.add("box");
+        gridColumn2.appendChild(box2);
+      }
+
+      // Create the number buttons
+      const numbersDiv = document.getElementById("numbers");
+      for (let i = 1; i <= maxNumber; i++) {
+        const button = document.createElement("button");
+        button.textContent = i;
+        button.addEventListener("click", handleNumberClick);
+        numbersDiv.appendChild(button);
+      }
+
+      // Update the score display
+      function updateScore() {
+        document.getElementById("score").textContent = `Score: ${score}`;
+        document.getElementById(
+          "highScore"
+        ).textContent = `High Score: ${highScore}`;
+      }
+
+      let previousNumFilledBoxes = null;
+
+      // Generate a new grid with random filled boxes
+      function generateGrid() {
+        let numFilledBoxes;
+
+        // Ensure we don't pick the same number of filled boxes as the previous iteration
+        do {
+          numFilledBoxes = Math.floor(Math.random() * (maxNumber - 1)) + 1;
+        } while (numFilledBoxes === previousNumFilledBoxes);
+
+        previousNumFilledBoxes = numFilledBoxes; // Store for next iteration
+
+        const boxes = document.querySelectorAll(".box");
+        boxes.forEach((box) => box.classList.remove("filled")); // Clear all boxes
+
+        // Fill boxes from the bottom
+        for (let i = 0; i < numFilledBoxes; i++) {
+          const col = i % gridWidth;
+          const row = Math.floor(i / gridWidth);
+          const boxIndex = col * gridHeight + (gridHeight - 1 - row);
+          boxes[boxIndex].classList.add("filled");
+        }
+      }
+
+      // Handle number button click
+      function handleNumberClick(event) {
+        const clickedNumber = parseInt(event.target.textContent);
+        const filledBoxes = document.querySelectorAll(".filled");
+        const numFilledBoxes = filledBoxes.length;
+
+        if (clickedNumber === numFilledBoxes) {
+          score++;
+          if (score > highScore) {
+            highScore = score;
+          }
+          updateScore();
+          generateGrid();
+        } else {
+          const resultDiv = document.getElementById("result");
+          resultDiv.textContent = `Game Over! Your score was ${score}`;
+          score = 0;
+          updateScore();
+        }
+      }
+
+      // Start the game
+      updateScore();
+      generateGrid();
+    </script>
+  </body>
+</html>
