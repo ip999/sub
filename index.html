@@ -1,208 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Subitising Game</title>
-    <style>
-      .grid-container {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 20px;
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subitising Game</title>
+  <style>
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
       }
 
-      .grid-column {
-        display: flex;
-        flex-direction: column;
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
+    }
 
-      .box {
-        width: 50px;
-        height: 50px;
-        border: 1px solid black;
-        background-color: white;
-        margin: 2px;
-      }
+    body {
+      transition: background-color 0.5s ease-in-out;
+    }
 
-      .filled {
-        background-color: black;
-      }
 
-      #numbers {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr); /* Three equal columns */
-        place-items: center; /* Center items both horizontally and vertically */
-        gap: 5px; /* Smaller gap for a tighter grouping */
-        width: fit-content; /* Shrink-wrap the grid to its contents */
-        margin: auto; /* Center the grid container on the page */
-      }
+    .grid-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
 
-      #numbers button {
-        padding: 10px; /* Padding inside buttons */
-        min-width: 60px; /* Minimum width for buttons */
-        box-sizing: border-box; /* Include padding and border in the width */
-        border: 1px solid #000; /* Solid border */
-        background-color: #fff; /* White background */
-        font-size: 18px; /* Font size */
-        font-family: sans-serif; /* Default sans-serif font */
-        margin: 0; /* Reset any default margin */
-        -webkit-appearance: none; /* Remove default iOS styling */
-        -moz-appearance: none; /* Remove default Firefox styling */
-        appearance: none; /* Remove default styling for other browsers */
-      }
+    .grid-column {
+      display: flex;
+      flex-direction: column;
+    }
 
-      /* Styles for invisible spacers */
-      .spacer {
-        width: 0;
-        height: 0;
-        visibility: hidden;
-      }
+    .box {
+      width: 50px;
+      height: 50px;
+      border: 1px solid black;
+      background-color: white;
+      margin: 2px;
+      opacity: 0.4;
+    }
 
-      .correct {
-        background-color: lightgreen;
-      }
+    .filled {
+      background-color: black;
+      opacity: 1;
+      /* Filled boxes fade in */
+    }
 
-      .incorrect {
-        background-color: lightcoral;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="score">Score: 0</div>
-    <div id="highScore">High Score: 0</div>
-    <div id="result"></div>
+    #numbers {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      /* Three equal columns */
+      place-items: center;
+      /* Center items both horizontally and vertically */
+      gap: 5px;
+      /* Smaller gap for a tighter grouping */
+      width: fit-content;
+      /* Shrink-wrap the grid to its contents */
+      margin: auto;
+      /* Center the grid container on the page */
+    }
 
-    <div class="grid-container">
-      <div class="grid-column" id="grid-column-1"></div>
-      <div class="grid-column" id="grid-column-2"></div>
-    </div>
-    <div id="numbers"></div>
+    #numbers button {
+      padding: 10px;
+      /* Padding inside buttons */
+      min-width: 60px;
+      /* Minimum width for buttons */
+      box-sizing: border-box;
+      /* Include padding and border in the width */
+      border: 1px solid #000;
+      /* Solid border */
+      background-color: #fff;
+      /* White background */
+      font-size: 18px;
+      /* Font size */
+      font-family: sans-serif;
+      /* Default sans-serif font */
+      margin: 0;
+      /* Reset any default margin */
+      -webkit-appearance: none;
+      /* Remove default iOS styling */
+      -moz-appearance: none;
+      /* Remove default Firefox styling */
+      appearance: none;
+      /* Remove default styling for other browsers */
+      transition: transform 0.1s;
+    }
 
-    <script>
-      const gridWidth = 2;
-      const gridHeight = 5;
-      const maxNumber = gridWidth * gridHeight;
-      let score = 0;
-      let highScore = 0;
+    #numbers button:active {
+      transform: scale(0.9);
+    }
 
-      // Create the grid
-      const gridColumn1 = document.getElementById("grid-column-1");
-      const gridColumn2 = document.getElementById("grid-column-2");
-      for (let row = 0; row < gridHeight; row++) {
-        const box1 = document.createElement("div");
-        box1.classList.add("box");
-        gridColumn1.appendChild(box1);
+    /* Styles for invisible spacers */
+    .spacer {
+      width: 0;
+      height: 0;
+      visibility: hidden;
+    }
 
-        const box2 = document.createElement("div");
-        box2.classList.add("box");
-        gridColumn2.appendChild(box2);
-      }
+    .correct {
+      background-color: lightgreen;
+    }
 
-      let previousNumFilledBoxes = null;
+    .incorrect {
+      background-color: lightcoral;
+    }
+  </style>
+</head>
 
-      // Generate a new grid with random filled boxes
-      function generateGrid() {
-        let numFilledBoxes;
-        startTime = new Date().getTime(); // Reset the start time for the new grid
+<body>
+  <div id="score">Score: 0</div>
+  <div id="highScore">High Score: 0</div>
+  <div id="result"></div>
 
-        // Ensure we don't pick the same number of filled boxes as the previous iteration
-        do {
-          numFilledBoxes = Math.floor(Math.random() * maxNumber) + 1;
-        } while (numFilledBoxes === previousNumFilledBoxes);
+  <div class="grid-container">
+    <div class="grid-column" id="grid-column-1"></div>
+    <div class="grid-column" id="grid-column-2"></div>
+  </div>
+  <div id="numbers"></div>
 
-        previousNumFilledBoxes = numFilledBoxes; // Store for next iteration
+  <script>
+    const gridWidth = 2;
+    const gridHeight = 5;
+    const maxNumber = gridWidth * gridHeight;
+    let score = 0;
+    let highScore = 0;
 
-        const boxes = document.querySelectorAll(".box");
-        boxes.forEach((box) => box.classList.remove("filled")); // Clear all boxes
+    function animateBoxes() {
+      const boxes = document.querySelectorAll('.box.filled');
+      let delay = 0;
+      const animationDuration = 500; // Duration of the animation in milliseconds
+      const staggerDelay = 50; // Delay between each box's animation
 
-        // Fill boxes from the bottom
-        for (let i = 0; i < numFilledBoxes; i++) {
-          const col = i % gridWidth;
-          const row = Math.floor(i / gridWidth);
-          const boxIndex = col * gridHeight + (gridHeight - 1 - row);
-          boxes[boxIndex].classList.add("filled");
-        }
-      }
-
-      // Create the number buttons
-      const numbersDiv = document.getElementById("numbers");
-      for (let i = 1; i <= 9; i++) {
-        const button = document.createElement("button");
-        button.textContent = i;
-        button.addEventListener("click", handleNumberClick);
-        numbersDiv.appendChild(button);
-      }
-
-      // Create and append the 10th button, with two spacers to center it
-      const spacerLeft = document.createElement("div");
-      spacerLeft.classList.add("spacer");
-      numbersDiv.appendChild(spacerLeft);
-
-      const button10 = document.createElement("button");
-      button10.textContent = "10";
-      button10.addEventListener("click", handleNumberClick);
-      numbersDiv.appendChild(button10);
-
-      const spacerRight = document.createElement("div");
-      spacerRight.classList.add("spacer");
-      numbersDiv.appendChild(spacerRight);
-
-      // Function to flash the background color
-      function flashColor(colorClass, duration) {
-        document.body.classList.add(colorClass);
+      boxes.forEach((box, index) => {
         setTimeout(() => {
-          document.body.classList.remove(colorClass);
-        }, duration);
+          box.style.opacity = '1'; // Fade in the box
+          box.style.transition = `opacity ${animationDuration}ms`; // Add transition effect
+          box.style.animation = `fadeIn ${animationDuration}ms forwards`; // Add fadeIn effect
+        }, delay);
+
+        delay += staggerDelay; // Increment the delay for the next box
+      });
+    }
+
+    // Function to flash the background color
+    function flashColor(colorClass, duration) {
+      document.body.classList.add(colorClass);
+      setTimeout(() => {
+        document.body.classList.remove(colorClass);
+      }, duration);
+    }
+
+
+
+    // Create the grid
+    const gridColumn1 = document.getElementById("grid-column-1");
+    const gridColumn2 = document.getElementById("grid-column-2");
+    for (let row = 0; row < gridHeight; row++) {
+      const box1 = document.createElement("div");
+      box1.classList.add("box");
+      gridColumn1.appendChild(box1);
+
+      const box2 = document.createElement("div");
+      box2.classList.add("box");
+      gridColumn2.appendChild(box2);
+    }
+
+    let previousNumFilledBoxes = null;
+
+    // Generate a new grid with random filled boxes
+    function generateGrid() {
+      let numFilledBoxes;
+      startTime = new Date().getTime(); // Reset the start time for the new grid
+
+      // Ensure we don't pick the same number of filled boxes as the previous iteration
+      do {
+        numFilledBoxes = Math.floor(Math.random() * maxNumber) + 1;
+      } while (numFilledBoxes === previousNumFilledBoxes);
+
+      previousNumFilledBoxes = numFilledBoxes; // Store for next iteration
+
+      const boxes = document.querySelectorAll(".box");
+      boxes.forEach((box) => box.classList.remove("filled")); // Clear all boxes
+
+      // Fill boxes from the bottom
+      for (let i = 0; i < numFilledBoxes; i++) {
+        const col = i % gridWidth;
+        const row = Math.floor(i / gridWidth);
+        const boxIndex = col * gridHeight + (gridHeight - 1 - row);
+        boxes[boxIndex].classList.add("filled");
       }
 
-      // Handle number button click
-      function handleNumberClick(event) {
-        const clickedNumber = parseInt(event.target.textContent);
-        const filledBoxes = document.querySelectorAll(".filled");
-        const numFilledBoxes = filledBoxes.length;
+      // Remove the existing animation from all boxes
+      document.querySelectorAll('.box').forEach((box) => {
+        box.style.opacity = '0.4';
+        box.style.animation = 'none';
+      });
+      animateBoxes()
+    }
 
-        if (clickedNumber === numFilledBoxes) {
-          // Calculate score based on quickness of the response
-          const timeTaken = new Date().getTime() - startTime; // time taken since the grid was generated
-          const timeScore = Math.max(0, (5000 - timeTaken) / 1000); // Score based on time, e.g., 5 seconds to answer for full score
+    // Create the number buttons
+    const numbersDiv = document.getElementById("numbers");
+    for (let i = 1; i <= 9; i++) {
+      const button = document.createElement("button");
+      button.textContent = i;
+      button.addEventListener("click", handleNumberClick);
+      numbersDiv.appendChild(button);
+    }
 
-          score += 1 + timeScore; // 1 point for correct answer, plus time-based score
-          if (score > highScore) {
-            highScore = score;
-          }
-          flashColor("correct", 500);
+    // Create and append the 10th button, with two spacers to center it
+    const spacerLeft = document.createElement("div");
+    spacerLeft.classList.add("spacer");
+    numbersDiv.appendChild(spacerLeft);
+
+    const button10 = document.createElement("button");
+    button10.textContent = "10";
+    button10.addEventListener("click", handleNumberClick);
+    numbersDiv.appendChild(button10);
+
+    const spacerRight = document.createElement("div");
+    spacerRight.classList.add("spacer");
+    numbersDiv.appendChild(spacerRight);
+
+    // Function to flash the background color
+    function flashColor(colorClass, duration) {
+      document.body.classList.add(colorClass);
+      setTimeout(() => {
+        document.body.classList.remove(colorClass);
+      }, duration);
+    }
+
+    // Handle number button click
+    function handleNumberClick(event) {
+      const clickedNumber = parseInt(event.target.textContent);
+      const filledBoxes = document.querySelectorAll(".filled");
+      const numFilledBoxes = filledBoxes.length;
+
+      if (clickedNumber === numFilledBoxes) {
+        // Calculate score based on quickness of the response
+        const timeTaken = new Date().getTime() - startTime; // time taken since the grid was generated
+        const timeScore = Math.max(0, (5000 - timeTaken) / 1000); // Score based on time, e.g., 5 seconds to answer for full score
+
+        score += 1 + timeScore; // 1 point for correct answer, plus time-based score
+        if (score > highScore) {
+          highScore = score;
+        }
+        flashColor("correct", 500);
+        updateScore();
+        generateGrid();
+      } else {
+        flashColor("incorrect", 500);
+        const resultDiv = document.getElementById("result");
+        resultDiv.textContent = `Game Over! Your high score was ${Math.floor(
+          highScore
+        )}`;
+        score = 0;
+        setTimeout(() => {
           updateScore();
           generateGrid();
-        } else {
-          flashColor("incorrect", 500);
-          const resultDiv = document.getElementById("result");
-          resultDiv.textContent = `Game Over! Your high score was ${Math.floor(
-            highScore
-          )}`;
-          score = 0;
-          setTimeout(() => {
-            updateScore();
-            generateGrid();
-            resultDiv.textContent = "";
-          }, 2000);
-        }
+          resultDiv.textContent = "";
+        }, 3000);
       }
+    }
 
-      // Update the score display
-      function updateScore() {
-        document.getElementById("score").textContent = `Score: ${Math.floor(
-          score
-        )}`;
-        document.getElementById(
-          "highScore"
-        ).textContent = `High Score: ${Math.floor(highScore)}`;
-      }
+    // Update the score display
+    function updateScore() {
+      document.getElementById("score").textContent = `Score: ${Math.floor(
+        score
+      )}`;
+      document.getElementById(
+        "highScore"
+      ).textContent = `High Score: ${Math.floor(highScore)}`;
+    }
 
-      let startTime; // define startTime globally
+    let startTime; // define startTime globally
 
-      // Start the game
-      updateScore();
-      generateGrid();
-    </script>
-  </body>
+    // Start the game
+    updateScore();
+    generateGrid();
+    animateBoxes()
+
+  </script>
+</body>
+
 </html>
